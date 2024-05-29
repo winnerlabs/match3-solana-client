@@ -1,0 +1,21 @@
+{
+  "name": "@winnerlabs/match3",
+  "version": "1.0.4",
+  "description": "A Typescript client to interact with match3 on-chain program",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "author": "shuangzi",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.12.12",
+    "typescript": "^5.4.5"
+  },
+  "private": false,
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.29.0",
+    "@metaplex-foundation/mpl-bubblegum": "^4.1.0"
+  }
+}

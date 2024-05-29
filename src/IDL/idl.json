@@ -1,0 +1,254 @@
+{
+  "version": "0.1.0",
+  "name": "match_3",
+  "instructions": [
+    {
+      "name": "initMatch3",
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "match3Info",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "placeHolder",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "mintScratchcard",
+      "accounts": [
+        {
+          "name": "player",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "scratchcard",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "playerConfig",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "match3Info",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "inviterConfig",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "inviterPubkey",
+          "type": "publicKey"
+        }
+      ]
+    },
+    {
+      "name": "scratchingCard",
+      "accounts": [
+        {
+          "name": "player",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "scratchcard",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "randomnessAccountData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "playerConfig",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "match3Info",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "scratchingPosition",
+          "type": "u8"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Match3Info",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "totalScratchcard",
+            "type": "u64"
+          },
+          {
+            "name": "forFutureUse",
+            "type": {
+              "array": [
+                "u8",
+                100
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "PlayerConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "isInitialized",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "credits",
+            "type": "u32"
+          },
+          {
+            "name": "ownedScratchcard",
+            "type": "u32"
+          },
+          {
+            "name": "inviterPubkey",
+            "type": "publicKey"
+          },
+          {
+            "name": "forFutureUse",
+            "type": {
+              "array": [
+                "u8",
+                100
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "ScratchCard",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "cardId",
+            "type": "u64"
+          },
+          {
+            "name": "isWin",
+            "type": "bool"
+          },
+          {
+            "name": "numberOfScratched",
+            "type": "u8"
+          },
+          {
+            "name": "latestScratchedPattern",
+            "type": "u8"
+          },
+          {
+            "name": "forFutureUse",
+            "type": {
+              "array": [
+                "u8",
+                100
+              ]
+            }
+          },
+          {
+            "name": "patternContents",
+            "type": "bytes"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Unauthorized",
+      "msg": "Unauthorized access attempt."
+    },
+    {
+      "code": 6001,
+      "name": "AlreadyWon",
+      "msg": "Already won."
+    },
+    {
+      "code": 6002,
+      "name": "RandomnessAlreadyRevealed",
+      "msg": "Randomness already revealed."
+    },
+    {
+      "code": 6003,
+      "name": "RandomnessNotResolved",
+      "msg": "Randomness not resolved."
+    },
+    {
+      "code": 6004,
+      "name": "CreditsNotEnough",
+      "msg": "Credits not enough to play."
+    },
+    {
+      "code": 6005,
+      "name": "ExceededMaxScratchingTimes",
+      "msg": "Exceeded maximum scratching times."
+    }
+  ],
+  "metadata": {
+    "address": "9trLskFrXf8tPGJTjrCggUpqdKbBPK6SftmiUKoiR2Pv"
+  }
+}
