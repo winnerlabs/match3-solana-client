@@ -1,6 +1,6 @@
 {
   "name": "@winnerlabs/match3",
-  "version": "1.0.4",
+  "version": "1.0.30",
   "description": "A Typescript client to interact with match3 on-chain program",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -16,6 +16,10 @@
   "private": false,
   "dependencies": {
     "@coral-xyz/anchor": "^0.29.0",
-    "@metaplex-foundation/mpl-bubblegum": "^4.1.0"
+    "@metaplex-foundation/mpl-bubblegum": "^4.1.0",
+    "@metaplex-foundation/mpl-token-metadata": "^3.2.1",
+    "@metaplex-foundation/umi": "^0.9.1",
+    "@metaplex-foundation/umi-web3js-adapters": "^0.9.1",
+    "@solana/spl-account-compression": "^0.2.1"
   }
 }
