@@ -1,6 +1,6 @@
 {
   "name": "@winnerlabs/match3",
-  "version": "1.0.65",
+  "version": "1.0.76",
   "description": "A Typescript client to interact with match3 on-chain program",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -20,6 +20,7 @@
     "@metaplex-foundation/mpl-token-metadata": "^3.2.1",
     "@metaplex-foundation/umi": "^0.9.1",
     "@metaplex-foundation/umi-web3js-adapters": "^0.9.1",
-    "@solana/spl-account-compression": "^0.2.1"
+    "@solana/spl-account-compression": "^0.2.1",
+    "@switchboard-xyz/on-demand": "^1.0.54"
   }
 }

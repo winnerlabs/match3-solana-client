@@ -1,6 +1,7 @@
 import { Context, TransactionSignature } from '@metaplex-foundation/umi';
 import { LeafSchema, getLeafSchemaSerializer} from "@metaplex-foundation/mpl-bubblegum";
 import { PublicKey, Connection } from '@solana/web3.js';
+import * as fs from "fs";
 
 export async function parseLeafFromMintV1Transaction(
     context: Pick<Context, 'programs' | 'eddsa' | 'rpc'>,
@@ -44,3 +45,7 @@ export async function checkPdaAccountExistence(pda: PublicKey, connection: Conne
         return false;
     }
 }
+
+export function LoadProgramIdl(filepath: string) {
+    return JSON.parse(fs.readFileSync(filepath, "utf8"));
+  }

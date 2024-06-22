@@ -158,6 +158,16 @@
           "isSigner": false
         },
         {
+          "name": "leafOwner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "leafAssetId",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
           "name": "randomnessAccountData",
           "isMut": false,
           "isSigner": false
@@ -263,8 +273,8 @@
             "type": "u8"
           },
           {
-            "name": "cardId",
-            "type": "u64"
+            "name": "isInitialized",
+            "type": "bool"
           },
           {
             "name": "isWin",
