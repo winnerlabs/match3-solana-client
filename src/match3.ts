@@ -1,7 +1,7 @@
 import * as anchor from "@coral-xyz/anchor";
 import {MPL_BUBBLEGUM_PROGRAM_ID, findTreeConfigPda,
     fetchTreeConfigFromSeeds, LeafSchema , findLeafAssetIdPda,
-    leafSchema} from "@metaplex-foundation/mpl-bubblegum";
+    leafSchema, getAssetWithProof, transfer} from "@metaplex-foundation/mpl-bubblegum";
 import { SPL_NOOP_PROGRAM_ID, SPL_ACCOUNT_COMPRESSION_PROGRAM_ID, createAllocTreeIx } from "@solana/spl-account-compression";
 import { Context, TransactionSignature, Umi, PublicKey as UmiPk } from '@metaplex-foundation/umi';
 import { toWeb3JsPublicKey, fromWeb3JsPublicKey} from '@metaplex-foundation/umi-web3js-adapters';
@@ -11,7 +11,6 @@ import {
     SB_ON_DEMAND_PID,
     Randomness,
     InstructionUtils,
-    sleep,
   } from "@switchboard-xyz/on-demand";
 import bs58 from 'bs58';
 import idl from "./IDL/idl.json";
@@ -35,7 +34,12 @@ export class Match3 {
             provider
         );
     }
-    // Only the administrator can call this function.
+    /**
+     * Init Match3 game.
+     * Only the administrator can call this function.
+     *
+     * @param admin The keypair of the admin.
+    */
     async initMatch3Info (admin: Keypair) {
         // check admin and umi's public key TODO
         if (!(admin.publicKey.equals(ADMIN_PUBLIC_KEY))) {
@@ -55,7 +59,17 @@ export class Match3 {
         .rpc();
         console.log("init Match3 game tx: ", tx);
     }
-
+    /**
+     * Create and add a new Merkle tree to the Match3 game.
+     * Only the administrator can call this function.
+     *
+     * @param {Keypair} admin - The keypair of the admin who is adding the new tree.
+     * @param {Umi} umi - The Bubblegum Umi framework.
+     * @param {number} [maxDepth=20] - The maximum depth of the Merkle tree. Defaults to 20.
+     * @param {number} [maxBufferSize=64] - The maximum buffer size of the Merkle tree. Defaults to 64.
+     * @param {number} [canopyDepth=14] - The canopy depth of the Merkle tree. Defaults to 14.
+     *
+    */
     async addNewTree (admin: Keypair, umi: Umi, maxDepth = 20, maxBufferSize = 64, canopyDepth = 14) {
         if (!(admin.publicKey.equals(ADMIN_PUBLIC_KEY))) {
             throw new Error("Only the administrator can call this function.");
@@ -253,6 +267,24 @@ export class Match3 {
             scratchcardInfo.latestScratchedPattern as number,
             scratchcardInfo.is_win as boolean,
             playerConfigInfo.credits as number];
+    }
+    /**
+     * Transfers a scratchcard asset to a specified recipient.
+     *
+     * @param {Umi} umi - The Bubblegum Umi framework used for interacting with the blockchain.
+     * @param {UmiPk} asset_id - The unique identifier of the scratchcard asset to be transferred.
+     * @param {PublicKey} to - The PublicKey of the recipient to whom the scratchcard asset will be transferred.
+     *
+    */
+    async transfer_scratchcard(umi: Umi, asset_id: UmiPk, to: PublicKey) {
+        console.log("transfer_scratchcard, asset_id: ", asset_id.toString());
+        const assetWithProof = await getAssetWithProof(umi, asset_id);
+        const {signature, result} = await transfer(umi, {
+            ...assetWithProof,
+            leafOwner: umi.payer.publicKey,
+            newLeafOwner: fromWeb3JsPublicKey(to),
+          }).sendAndConfirm(umi)
+        console.log("transfer_scratchcard, signature: ", signature);
     }
 }
 
