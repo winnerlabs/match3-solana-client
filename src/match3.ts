@@ -6,7 +6,7 @@ import { SPL_NOOP_PROGRAM_ID, SPL_ACCOUNT_COMPRESSION_PROGRAM_ID, createAllocTre
 import { Context, TransactionSignature, Umi, PublicKey as UmiPk } from '@metaplex-foundation/umi';
 import { toWeb3JsPublicKey, fromWeb3JsPublicKey} from '@metaplex-foundation/umi-web3js-adapters';
 import { Keypair, PublicKey } from "@solana/web3.js";
-import {parseLeafFromMintV1Transaction, checkPdaAccountExistence, LoadProgramIdl} from "./utils";
+import {parseLeafFromMintV1Transaction, checkPdaAccountExistence, LoadProgramIdl, createSbQueue} from "./utils";
 import {
     SB_ON_DEMAND_PID,
     Randomness,
@@ -21,8 +21,6 @@ const [match3InfoPDA, _bump]= PublicKey.findProgramAddressSync(
     [Buffer.from("match3"), ADMIN_PUBLIC_KEY.toBuffer()],
     new PublicKey(idl.metadata.address)
 )
-// Switchboard sbQueue fixed
-const sbQueue = new PublicKey("FfD96yeXs4cxZshoPPSKhSPgVQxLAJUT3gefgh84m1Di");
 export const MATCH3_INFO_PDA: Readonly<PublicKey> = match3InfoPDA;
 export class Match3 {
     public program: anchor.Program;
@@ -139,13 +137,14 @@ export class Match3 {
      * @param {PublicKey} [scratchcard_owner=player.publicKey] - The PublicKey of the owner of the scratchcard. Defaults to the player's public key.
      * @param {PublicKey} [inviter_pubkey=PublicKey.default] - The PublicKey of the inviter of the player. Defaults to PublicKey.default.
      *
-     * @returns {Promise<[bigint, number]>}
-     *   - The scratchcard leaf index within the merkletree.
+     * @returns {Promise<[UmiPk, number]>}
+     *   - The scratchcard unique asset identifier (UmiPk).
      *   - The player's current credits.
     */
-    async mintScratchcard (player: Keypair, umi: Umi, mint_quantity = 1, scratchcard_owner = player.publicKey, inviter_pubkey = PublicKey.default): Promise<[bigint, number]>{
+    async mintScratchcard (player: Keypair, umi: Umi, mint_quantity = 1, scratchcard_owner = player.publicKey, inviter_pubkey = PublicKey.default): Promise<[UmiPk, number]>{
         const match3Info = await this.program.account.match3Info.fetch(match3InfoPDA);
-        const [treeConfig] = findTreeConfigPda(umi,{merkleTree: fromWeb3JsPublicKey(match3Info.merkleTree as PublicKey)});
+        const merkleTreeUmiPk = fromWeb3JsPublicKey(match3Info.merkleTree as PublicKey);
+        const [treeConfig] = findTreeConfigPda(umi,{merkleTree: merkleTreeUmiPk});
         const [playerConfigPDA] = anchor.web3.PublicKey.findProgramAddressSync(
             [Buffer.from("player_config"), player.publicKey.toBuffer()],
             this.program.programId
@@ -188,9 +187,13 @@ export class Match3 {
             console.log("mint scratchcard sig: ", sig);
             // fetch cNFT leaf assetId
             const leaf: LeafSchema = await parseLeafFromMintV1Transaction(umi, bs58.decode(sig), playerConfigIsExist);
+            const [assetId, _bump] = await findLeafAssetIdPda(umi, {
+                merkleTree: merkleTreeUmiPk,
+                leafIndex: leaf.nonce,
+            })
             console.log("leaf: ", leaf.nonce);
             const playerConfigInfo = await this.program.account.playerConfig.fetch(playerConfigPDA);
-            return [leaf.nonce, playerConfigInfo.credits as number];
+            return [assetId, playerConfigInfo.credits as number];
         } else {
             throw new Error("sendAndConfirm is undefined on provider");
         }
@@ -210,7 +213,7 @@ export class Match3 {
      *   - A boolean indicating whether the scratch resulted in a win or not.
      *   - player's current credits.
      */
-    async scratchingCard (player: Keypair, umi: Umi, asset_id: UmiPk): Promise<[number, number, boolean, number]> {
+    async scratchingCard (player: Keypair, umi: Umi, asset_id: UmiPk, scratching_position: number): Promise<[number, number, boolean, number]> {
         const match3Info = await this.program.account.match3Info.fetch(match3InfoPDA);
         console.log("merketree: ", (match3Info.merkleTree as PublicKey).toString());
         const asset = await umi.rpc.getAsset(asset_id);
@@ -238,6 +241,7 @@ export class Match3 {
         // }
         const sbProgram = new anchor.Program(sbOnDemandIdl as anchor.Idl, SB_ON_DEMAND_PID);
         const rngKp = Keypair.generate();
+        const sbQueue = await createSbQueue(sbProgram);
         const [randomness, ix] = await Randomness.create(sbProgram, rngKp, sbQueue);
         const commitIx = await randomness.commitIx(sbQueue);
         console.log("randomness address: ", randomness.pubkey.toString());
@@ -249,7 +253,7 @@ export class Match3 {
             throw new Error("sendAndConfirm is undefined on provider");
         }
         const scratchIx = await this.program.methods
-            .scratchingCard(2)
+            .scratchingCard(scratching_position)
             .accounts({
             scratchcard: scratchcardPDA,
             leafOwner: player.publicKey,
@@ -263,6 +267,7 @@ export class Match3 {
 
         const scratchcardInfo = await this.program.account.scratchCard.fetch(scratchcardPDA);
         const playerConfigInfo = await this.program.account.playerConfig.fetch(playerConfigPDA);
+        console.log("iswin: ", scratchcardInfo.is_win as boolean);
         return [scratchcardInfo.numberOfScratched as number,
             scratchcardInfo.latestScratchedPattern as number,
             scratchcardInfo.is_win as boolean,

@@ -61,8 +61,8 @@ const match3 = new Match3(provider);
      * @param {PublicKey} [scratchcard_owner=player.publicKey] - The PublicKey of the owner of the scratchcard. Defaults to the player's public key.
      * @param {PublicKey} [inviter_pubkey=PublicKey.default] - The PublicKey of the inviter of the player. Defaults to PublicKey.default.
      *
-     * @returns {Promise<[bigint, number]>}
-     *   - The scratchcard leaf index within the merkletree.
+     * @returns {Promise<[UmiPk, number]>}
+     *   - The scratchcard unique asset identifier (UmiPk).
      *   - The player's current credits.
     */
     async mintScratchcard (player: Keypair, umi: Umi, mint_quantity = 1, scratchcard_owner = player.publicKey, inviter_pubkey = PublicKey.default): Promise<[bigint, number]>{}

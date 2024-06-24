@@ -1,6 +1,6 @@
 {
   "name": "@winnerlabs/match3",
-  "version": "1.0.76",
+  "version": "1.0.81",
   "description": "A Typescript client to interact with match3 on-chain program",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

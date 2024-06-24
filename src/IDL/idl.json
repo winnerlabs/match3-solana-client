@@ -244,10 +244,6 @@
             "type": "u32"
           },
           {
-            "name": "ownedScratchcard",
-            "type": "u32"
-          },
-          {
             "name": "inviterPubkey",
             "type": "publicKey"
           },
@@ -348,6 +344,6 @@
     }
   ],
   "metadata": {
-    "address": "Bo62M4w6RYsffaCxKSNa1GnZX1waKJcBsrrPm68HXvae"
+    "address": "45jqMGFZJ7FqiKxNgnsJvYjznhspjZBXxV3sotnkhUT3"
   }
 }
